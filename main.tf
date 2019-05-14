@@ -61,7 +61,7 @@ resource "aws_lb_listener_rule" "external_https_listener_rule" {
   condition {
     field  = "path-patterns"
     values = [
-      "${var.application_path}",
+      "${var.application_path}/*",
     ]
   }
   listener_arn = "${var.external_lb_listener_arn}"
@@ -76,7 +76,7 @@ resource "aws_lb_listener_rule" "internal_https_listener_rule" {
   condition {
     field  = "path-patterns"
     values = [
-      "${var.application_path}",
+      "${var.application_path}/*",
     ]
   }
   listener_arn = "${var.internal_lb_listener_arn}"
