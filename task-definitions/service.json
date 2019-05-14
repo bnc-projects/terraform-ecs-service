@@ -1,0 +1,38 @@
+[
+  {
+    "cpu": ${cpu_reservation},
+    "image": "${docker_image_url}",
+    "environment": [
+      {
+        "name": "JAVA_OPTS",
+        "value": "${java_options}"
+      },
+      {
+        "name": "SPRING_PROFILES_ACTIVE",
+        "value": "${spring_profile}"
+      }
+    ],
+    "essential": true,
+    "healthCheck": {
+      "command": [ "CMD-SHELL", "${container_healthcheck}" ],
+      "startPeriod": ${healthcheck_grace_period}
+    },
+    "logConfiguration": {
+      "logDriver": "splunk",
+      "options": {
+        "splunk-format": "raw",
+        "splunk-insecureskipverify": true,
+        "splunk-token": "${splunk_token}",
+        "splunk-url": "${splunk_url}"
+      }
+    },
+    "memory": ${memory_limit},
+    "memoryReservation": ${memory_reservation},
+    "name": "${container_name}",
+    "portMappings": [
+      {
+        "containerPort": ${container_port}
+      }
+    ]
+  }
+]
