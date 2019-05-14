@@ -28,7 +28,7 @@ variable "desired_count" {
 
 variable "deregistration_delay" {
   default     = 30
-  description = "The number of seconds the load balaner waits before setting the service to unused from draining"
+  description = "The number of seconds the load balancer waits before setting the service to unused from draining"
 }
 
 variable "docker_image" {
@@ -59,6 +59,7 @@ variable "internal_lb_listener_arn" {
 }
 
 variable "java_options" {
+  default     = ""
   description = "The Java Options environment variables to apply in the container"
 }
 
@@ -100,6 +101,7 @@ variable "splunk_url" {
 }
 
 variable "spring_profile" {
+  default     = ""
   description = "The spring profile(s) which will be enabled in the application"
 }
 
@@ -120,5 +122,5 @@ variable "unhealthy_threshold" {
 }
 
 variable "vpc_id" {
-  description = "The VPC ID which the load balancer(s) will be part of"
+  description = "The VPC ID which the load balancer listener(s) will be part of"
 }
