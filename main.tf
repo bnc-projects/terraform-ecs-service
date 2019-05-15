@@ -17,7 +17,7 @@ data "aws_iam_policy_document" "service_assume_role" {
 }
 
 data "template_file" "task_definition" {
-  template = "${file("${path.module}/ecs-tasks/app.json")}"
+  template = "${file("${path.module}/task-definitions/service.json")}"
   vars {
     container_healthcheck    = "${var.container_healthcheck}"
     container_name           = "${var.service_name}"
@@ -94,7 +94,7 @@ resource "aws_iam_role_policy_attachment" "ecs_service_policy" {
 }
 
 resource "aws_ecs_task_definition" "service" {
-  container_definitions = "${file("${path.module}/task-definitions/service.json")}"
+  container_definitions = "${data.template_file.task_definition.rendered}"
   family                = "${var.service_name}-Task"
   task_role_arn         = "${var.task_role_arn}"
   tags                  = "${var.tags}"
