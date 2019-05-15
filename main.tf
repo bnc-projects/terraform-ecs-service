@@ -94,7 +94,7 @@ resource "aws_iam_role_policy_attachment" "ecs_service_policy" {
 }
 
 resource "aws_ecs_task_definition" "service" {
-  container_definitions = "${file("task-definitions/service.json")}"
+  container_definitions = "${file("${path.module}/task-definitions/service.json")}"
   family                = "${var.service_name}-Task"
   task_role_arn         = "${var.task_role_arn}"
   tags                  = "${var.tags}"
