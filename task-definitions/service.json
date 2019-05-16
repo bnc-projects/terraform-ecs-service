@@ -21,7 +21,7 @@
       "logDriver": "splunk",
       "options": {
         "splunk-format": "raw",
-        "splunk-insecureskipverify": true,
+        "splunk-insecureskipverify": "true",
         "splunk-token": "${splunk_token}",
         "splunk-url": "${splunk_url}"
       }
