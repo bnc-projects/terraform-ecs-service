@@ -15,7 +15,10 @@
     "essential": true,
     "healthCheck": {
       "command": [ "CMD-SHELL", "${container_healthcheck}" ],
-      "startPeriod": ${healthcheck_grace_period}
+      "interval": 30,
+      "retries": 3,
+      "startPeriod": ${healthcheck_grace_period},
+      "timeout": 5
     },
     "logConfiguration": {
       "logDriver": "splunk",
@@ -28,11 +31,15 @@
     },
     "memory": ${memory_limit},
     "memoryReservation": ${memory_reservation},
+    "mountPoints": [],
     "name": "${container_name}",
     "portMappings": [
       {
-        "containerPort": ${container_port}
+        "containerPort": ${container_port},
+        "hostPort": 0,
+        "protocol": "tcp"
       }
-    ]
+    ],
+    "volumesFrom": []
   }
 ]
