@@ -123,7 +123,6 @@ resource "aws_ecs_service" "service" {
     type  = "binpack"
     field = "memory"
   }
-  tags                              = "${var.tags}"
   task_definition                   = "${aws_ecs_task_definition.service.arn}"
   lifecycle {
     ignore_changes = [
