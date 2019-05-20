@@ -52,7 +52,7 @@ resource "aws_lb_target_group" "target_group" {
   tags                 = "${var.tags}"
 }
 
-resource "aws_lb_listener_rule" "external_https_listener_rule" {
+resource "aws_lb_listener_rule" "https_listener_rule" {
   count        = "${var.is_exposed_externally ? 1 : 0}"
   action {
     type             = "forward"
@@ -64,22 +64,7 @@ resource "aws_lb_listener_rule" "external_https_listener_rule" {
       "${var.application_path}/*",
     ]
   }
-  listener_arn = "${var.external_lb_listener_arn}"
-}
-
-resource "aws_lb_listener_rule" "internal_https_listener_rule" {
-  count        = "${!var.is_exposed_externally ? 1 : 0}"
-  action {
-    type             = "forward"
-    target_group_arn = "${aws_lb_target_group.target_group.arn}"
-  }
-  condition {
-    field  = "path-pattern"
-    values = [
-      "${var.application_path}/*",
-    ]
-  }
-  listener_arn = "${var.internal_lb_listener_arn}"
+  listener_arn = "${var.is_exposed_externally ? var.external_lb_listener_arn : var.internal_lb_listener_arn}"
 }
 
 resource "aws_iam_role" "service" {
