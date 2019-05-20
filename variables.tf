@@ -1,3 +1,8 @@
+variable "alarm_actions" {
+  description = "The list of ARNs which will be triggered when the alarms trigger"
+  type        = "list"
+}
+
 variable "application_path" {
   description = "The path that the service will listen to requests on"
 }
@@ -39,6 +44,10 @@ variable "external_lb_listener_arn" {
   description = "The external load balancers ARN"
 }
 
+variable "external_lb_name" {
+  description = "The external load balancer name"
+}
+
 variable "healthcheck_grace_period" {
   default     = 300
   description = "The grace period to give the healthchecks"
@@ -56,6 +65,10 @@ variable "healthy_threshold" {
 
 variable "internal_lb_listener_arn" {
   description = "The internal load balancers ARN"
+}
+
+variable "internal_lb_name" {
+  description = "The internal load balancer name"
 }
 
 variable "java_options" {

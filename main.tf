@@ -115,3 +115,41 @@ resource "aws_ecs_service" "service" {
     ]
   }
 }
+
+resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
+  alarm_actions       = "${var.alarm_actions}"
+  alarm_description   = "${var.service_name} HTTP 500 response code alarm"
+  alarm_name          = "${var.service_name}-HTTP-5XX-Alarm"
+  comparison_operator = "GreaterThanThreshold"
+  dimensions {
+    LoadBalancer = "${var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name}"
+    TargetGroup  = "${aws_lb_target_group.target_group.arn_suffix}"
+  }
+  evaluation_periods  = 1
+  metric_name         = "HTTPCode_Target_5XX_Count"
+  namespace           = "AWS/ApplicationELB"
+  period              = "60"
+  statistic           = "Sum"
+  tags                = "${var.tags}"
+  threshold           = 0
+  treat_missing_data  = "notBreaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
+  alarm_actions       = "${var.alarm_actions}"
+  alarm_description   = "${var.service_name} service has no healthy instances"
+  alarm_name          = "${var.service_name}-not-healthy"
+  comparison_operator = "LessThanThreshold"
+  dimensions {
+    LoadBalancer = "${var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name}"
+    TargetGroup  = "${aws_lb_target_group.target_group.arn_suffix}"
+  }
+  evaluation_periods  = 1
+  metric_name         = "HealthyHostCount"
+  namespace           = "AWS/ApplicationELB"
+  period              = "60"
+  statistic           = "Minimum"
+  tags                = "${var.tags}"
+  threshold           = 0
+  treat_missing_data  = "breaching"
+}
