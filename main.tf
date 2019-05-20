@@ -53,7 +53,6 @@ resource "aws_lb_target_group" "target_group" {
 }
 
 resource "aws_lb_listener_rule" "https_listener_rule" {
-  count        = "${var.is_exposed_externally ? 1 : 0}"
   action {
     type             = "forward"
     target_group_arn = "${aws_lb_target_group.target_group.arn}"
