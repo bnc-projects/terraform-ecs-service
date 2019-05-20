@@ -117,7 +117,9 @@ resource "aws_ecs_service" "service" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
-  alarm_actions       = "${var.alarm_actions}"
+  alarm_actions       = [
+    "${var.alarm_actions}"
+  ]
   alarm_description   = "${var.service_name} HTTP 500 response code alarm"
   alarm_name          = "${var.service_name}-HTTP-5XX-Alarm"
   comparison_operator = "GreaterThanThreshold"
@@ -136,7 +138,9 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
-  alarm_actions       = "${var.alarm_actions}"
+  alarm_actions       = [
+    "${var.alarm_actions}"
+  ]
   alarm_description   = "${var.service_name} service has no healthy instances"
   alarm_name          = "${var.service_name}-not-healthy"
   comparison_operator = "LessThanThreshold"
