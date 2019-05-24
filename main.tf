@@ -18,7 +18,7 @@ data "aws_iam_policy_document" "service_assume_role" {
 
 data "template_file" "task_definition" {
   template = file(format("%s/task-definitions/service.json", path.module))
-  vars {
+  vars = {
     container_healthcheck    = var.container_healthcheck
     container_name           = var.service_name
     container_port           = var.container_port
