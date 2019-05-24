@@ -60,7 +60,7 @@ resource "aws_lb_listener_rule" "https_listener_rule" {
   condition {
     field  = "path-pattern"
     values = [
-      "${}var.application_path}/*",
+      format("%s/*", var.application_path),
     ]
   }
   listener_arn = var.is_exposed_externally ? var.external_lb_listener_arn : var.internal_lb_listener_arn
