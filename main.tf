@@ -45,7 +45,7 @@ resource "aws_lb_target_group" "target_group" {
     timeout             = 5
     unhealthy_threshold = var.unhealthy_threshold
   }
-  name                 = substr(format("tg-%s", var.service_name), 0, min(length(format("tg-%s", var.service_name), 32))
+  name                 = substr(format("tg-%s", var.service_name), 0, min(length(format("tg-%s", var.service_name)), 32))
   port                 = 80
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
