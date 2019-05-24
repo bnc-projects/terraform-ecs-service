@@ -120,7 +120,7 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
   alarm_description   = format("%s HTTP 500 response code alarm", var.service_name)
   alarm_name          = format("%s-HTTP-5XX-Alarm", var.service_name)
   comparison_operator = "GreaterThanThreshold"
-  dimensions {
+  dimensions = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
     TargetGroup  = aws_lb_target_group.target_group.arn_suffix
   }
@@ -139,7 +139,7 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
   alarm_description   = format("%s service has no healthy instances", var.service_name)
   alarm_name          = format("%s-not-healthy", var.service_name)
   comparison_operator = "LessThanThreshold"
-  dimensions {
+  dimensions = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
     TargetGroup  = aws_lb_target_group.target_group.arn_suffix
   }
