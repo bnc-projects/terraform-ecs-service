@@ -1,6 +1,12 @@
 variable "alarm_actions" {
   description = "The list of ARNs which will be triggered when the alarms trigger"
-  type        = list
+  type        = list(string)
+}
+
+variable "assign_public_ip" {
+  default     = false
+  description = "Assign a public IP address to the ENI"
+  type        = bool
 }
 
 variable "application_path" {
@@ -13,21 +19,9 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "container_healthcheck" {
-  default     = "wget --quiet --tries=1 --spider --timeout=30 http://localhost:8080/actuator/health || exit 1"
-  description = "The command to run for the container healthcheck"
-  type        = string
-}
-
 variable "container_port" {
   default     = 8080
   description = "The port number which the application is listening to inside the container"
-  type        = number
-}
-
-variable "cpu_reservation" {
-  default     = 128
-  description = "The amount of CPU to reserve on the cluster for the task"
   type        = number
 }
 
@@ -43,9 +37,10 @@ variable "deregistration_delay" {
   type        = number
 }
 
-variable "docker_image" {
-  description = "The docker image to be used for the task definition"
-  type        = string
+variable "enable_ecs_managed_tags" {
+  default     = false
+  description = "Specifies whether to enable Amazon ECS managed tags for the tasks within the service"
+  type        = bool
 }
 
 variable "external_lb_listener_arn" {
@@ -60,7 +55,7 @@ variable "external_lb_name" {
 
 variable "healthcheck_grace_period" {
   default     = 300
-  description = "The grace period to give the healthchecks"
+  description = "The grace period to give the ECS service healthchecks"
   type        = number
 }
 
@@ -86,34 +81,66 @@ variable "internal_lb_name" {
   type        = string
 }
 
-variable "java_options" {
-  default     = ""
-  description = "The Java Options environment variables to apply in the container"
-  type        = string
-}
-
 variable "is_exposed_externally" {
   default     = false
   description = "Determines if the service will be attached to the external load balancer"
   type        = bool
 }
 
-variable "memory_limit" {
-  default     = 512
-  description = "The hard memory limit for the task"
-  type        = number
+variable "launch_type" {
+  default     = "EC2"
+  description = "The launch type on which to run your service"
+  type        = string
 }
 
-variable "memory_reservation" {
-  default     = 512
-  description = "The amount of memory to reserve for the task"
-  type        = number
+variable "placement_constraints" {
+  default     = []
+  description = "The rules that are taken into consideration during task placement"
+  type        = list(map(string))
+}
+
+variable "placement_strategy" {
+  default     = [
+    {
+      type  = "spread"
+      field = "attribute:ecs.availability-zone"
+    },
+    {
+      type  = "binpack"
+      field = "memory"
+    }
+  ]
+  description = "The orded placement strategy which should be followed by the service"
+  type        = list(map(string))
+}
+
+variable "platform_version" {
+  default     = "LATEST"
+  description = "The platform version on which to run your service"
 }
 
 variable "priority" {
   default     = 1
   description = "The priority of the application path matching"
   type        = number
+}
+
+variable "propagate_tags" {
+  default     = "TASK_DEFINITION"
+  description = "Specifies whether to propagate the tags from the task definition or the service to the tasks"
+  type        = string
+}
+
+variable "scheduling_strategy" {
+  default     = "REPLICA"
+  description = "The scheduling strategy to use for the service"
+  type        = string
+}
+
+variable "security_groups" {
+  default     = []
+  description = "The security groups associated with the task or service"
+  type        = list(string)
 }
 
 variable "service_name" {
@@ -127,20 +154,10 @@ variable "service_role_arn" {
   type        = string
 }
 
-variable "splunk_token" {
-  description = "The Splunk token for the HTTP Event Collector"
-  type        = string
-}
-
-variable "splunk_url" {
-  description = "The Splunk URL for the HTTP Event Collector"
-  type        = string
-}
-
-variable "spring_profile" {
-  default     = ""
-  description = "The spring profile(s) which will be enabled in the application"
-  type        = string
+variable "subnets" {
+  default     = []
+  description = "The subnets associated with the task or service"
+  type        = list(string)
 }
 
 variable "tags" {
@@ -149,9 +166,9 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "task_role_arn" {
-  default     = ""
-  description = "The ARN of the IAM role which will be attached at the task definition level"
+variable "task_definition_arn" {
+  description = "The ARN the task definition level"
+  type        = string
 }
 
 variable "unhealthy_threshold" {

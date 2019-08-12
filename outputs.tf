@@ -3,5 +3,5 @@ output "target_group_name" {
 }
 
 output "ecs_service_name" {
-  value = aws_ecs_service.service.id
+  value = var.launch_type == "EC2" ? aws_ecs_service.ec2_service.id : aws_ecs_service.fargate_service.id
 }

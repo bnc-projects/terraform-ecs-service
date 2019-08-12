@@ -16,24 +16,6 @@ data "aws_iam_policy_document" "service_assume_role" {
   }
 }
 
-data "template_file" "task_definition" {
-  template = file(format("%s/task-definitions/service.json", path.module))
-  vars = {
-    container_healthcheck    = var.container_healthcheck
-    container_name           = var.service_name
-    container_port           = var.container_port
-    cpu_reservation          = var.cpu_reservation
-    docker_image_url         = var.docker_image
-    healthcheck_grace_period = var.healthcheck_grace_period
-    java_options             = var.java_options
-    memory_limit             = var.memory_limit
-    memory_reservation       = var.memory_reservation
-    splunk_token             = var.splunk_token
-    splunk_url               = var.splunk_url
-    spring_profile           = var.spring_profile
-  }
-}
-
 resource "aws_lb_target_group" "target_group" {
   deregistration_delay = var.deregistration_delay
   health_check {
@@ -77,37 +59,57 @@ resource "aws_iam_role_policy_attachment" "ecs_service_policy" {
   policy_arn = var.service_role_arn
 }
 
-resource "aws_ecs_task_definition" "service" {
-  container_definitions = data.template_file.task_definition.rendered
-  family                = format("%s-Task", var.service_name)
-  task_role_arn         = var.task_role_arn
-  tags                  = var.tags
-}
-
-resource "aws_ecs_service" "service" {
+resource "aws_ecs_service" "ec2_service" {
+  count                             = var.launch_type == "EC2" ? 1 : 0
   name                              = var.service_name
   cluster                           = var.cluster_name
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = var.healthcheck_grace_period
   iam_role                          = aws_iam_role.service.arn
+  task_definition                   = var.task_definition_arn
+  launch_type                       = var.launch_type
+  scheduling_strategy               = var.scheduling_strategy
+  enable_ecs_managed_tags           = var.enable_ecs_managed_tags
+  propagate_tags                    = var.propagate_tags
+  ordered_placement_strategy        = var.placement_strategy
+  placement_constraints             = var.placement_constraints
   load_balancer {
     target_group_arn = aws_lb_target_group.target_group.arn
     container_name   = var.service_name
     container_port   = var.container_port
   }
-  ordered_placement_strategy {
-    type  = "spread"
-    field = "attribute:ecs.availability-zone"
+
+  lifecycle {
+    ignore_changes = [
+      "desired_count"
+    ]
   }
-  ordered_placement_strategy {
-    type  = "spread"
-    field = "instanceId"
+}
+
+resource "aws_ecs_service" "fargate_service" {
+  count                             = var.launch_type == "FARGATE" ? 1 : 0
+  name                              = var.service_name
+  cluster                           = var.cluster_name
+  desired_count                     = var.desired_count
+  health_check_grace_period_seconds = var.healthcheck_grace_period
+  iam_role                          = aws_iam_role.service.arn
+  task_definition                   = var.task_definition_arn
+  platform_version                  = var.platform_version
+  launch_type                       = var.launch_type
+  enable_ecs_managed_tags           = var.enable_ecs_managed_tags
+  propagate_tags                    = var.propagate_tags
+  ordered_placement_strategy        = var.placement_strategy
+  network_configuration {
+    subnets          = var.subnets
+    security_groups  = var.security_groups
+    assign_public_ip = var.assign_public_ip
   }
-  ordered_placement_strategy {
-    type  = "binpack"
-    field = "memory"
+  load_balancer {
+    target_group_arn = aws_lb_target_group.target_group.arn
+    container_name   = var.service_name
+    container_port   = var.container_port
   }
-  task_definition                   = aws_ecs_task_definition.service.arn
+
   lifecycle {
     ignore_changes = [
       "desired_count"
@@ -120,7 +122,7 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
   alarm_description   = format("%s HTTP 500 response code alarm", var.service_name)
   alarm_name          = format("%s-HTTP-5XX-Alarm", var.service_name)
   comparison_operator = "GreaterThanThreshold"
-  dimensions = {
+  dimensions          = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
     TargetGroup  = aws_lb_target_group.target_group.arn_suffix
   }
@@ -139,7 +141,7 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
   alarm_description   = format("%s service has no healthy instances", var.service_name)
   alarm_name          = format("%s-not-healthy", var.service_name)
   comparison_operator = "LessThanThreshold"
-  dimensions = {
+  dimensions          = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
     TargetGroup  = aws_lb_target_group.target_group.arn_suffix
   }
