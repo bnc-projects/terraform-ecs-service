@@ -1,4 +1,5 @@
 variable "alarm_actions" {
+  default     = []
   description = "The list of ARNs which will be triggered when the alarms trigger"
   type        = list(string)
 }
@@ -96,7 +97,10 @@ variable "launch_type" {
 variable "placement_constraints" {
   default     = []
   description = "The rules that are taken into consideration during task placement"
-  type        = list(map(string))
+  type        = list(map(object({
+    type       = string
+    expression = string
+  })))
 }
 
 variable "placement_strategy" {
@@ -111,7 +115,10 @@ variable "placement_strategy" {
     }
   ]
   description = "The orded placement strategy which should be followed by the service"
-  type        = list(map(string))
+  type        = list(map(object({
+    type  = string
+    field = string
+  })))
 }
 
 variable "platform_version" {

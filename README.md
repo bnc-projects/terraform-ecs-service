@@ -8,51 +8,60 @@ Terraform module which creates a ECS service to be deployed on the specified clu
 
 ### Internal Service
 ```
-data "aws_iam_role" "task" {
-  name = "${var.service_name}_task"
-}
-
 module "ecs_service" {
   source                   = "git::https://github.com/bnc-projects/terraform-ecs-service.git?ref=1.0.0"
   application_path         = "/v1/service" 
   cluster_name             = "ecs-cluster-name"
-  docker_image             = "bncprojects/${var.service_name}:${var.service_version}"
   external_lb_listener_arn = ""
+  external_lb_name         = ""
   internal_lb_listener_arn = "arn:aws:elasticloadbalancing:region:account-id:listener/app/intlb"
-  java_options             = "-javaagent:newrelic/newrelic.jar -Dnewrelic.environment=${terraform.workspace} -Dnewrelic.config.file=newrelic/newrelic.yml"
+  internal_lb_name         = "intlb"
   is_exposed_externally    = false
   priority                 = 1
-  service_name             = "${var.service_name}
-  splunk_token             = "${var.splunk_token}
-  splunk_url               = "${var.splunk_url}
-  spring_profile           = "default,${terraform.workspace}"
-  task_role_arn            = "${aws_iam_role.task.arn}"
+  service_name             = var.service_name
+  task_definition_arn      = aws_ecs_task_definition.bar.arn
   vpc_id                   = "vpc-124552462"
-  tags                     = "${merge(local.common_tags, var.tags)}"
+  tags                     = merge(local.common_tags, var.tags)}
 }
 ```
 
 ### External Service
 ```
-data "aws_iam_role" "task" {
-  name = "${var.service_name}_task"
-}
-
 module "ecs_service" {
   source                   = "git::https://github.com/bnc-projects/terraform-ecs-service.git?ref=1.0.0"
   application_path         = "/v1/service" 
   cluster_name             = "ecs-cluster-name"
-  docker_image             = "bncprojects/${var.service_name}:${var.service_version}"
-  external_lb_listener_arn = "arn:aws:elasticloadbalancing:region:account-id:listener/app/intlb"
+  external_lb_listener_arn = "arn:aws:elasticloadbalancing:region:account-id:listener/app/extlb"
+  external_lb_name         = "extlb"
   internal_lb_listener_arn = ""
-  java_options             = "-javaagent:newrelic/newrelic.jar -Dnewrelic.environment=${terraform.workspace} -Dnewrelic.config.file=newrelic/newrelic.yml"
+  internal_lb_name         = ""
   is_exposed_externally    = true
   priority                 = 5
-  service_name             = "${var.service_name}
-  splunk_token             = "${var.splunk_token}
-  splunk_url               = "${var.splunk_url}
-  spring_profile           = "default,${terraform.workspace}"
-  task_role_arn            = "${aws_iam_role.task.arn}"
+  service_name             = var.service_name
+  task_definition_arn      = aws_ecs_task_definition.bar.arn
+  vpc_id                   = "vpc-124552462"
+  tags                     = "${merge(local.common_tags, var.tags)}"
+}
+```
+
+### Fargate External Service
+```
+module "ecs_service" {
+  source                   = "git::https://github.com/bnc-projects/terraform-ecs-service.git?ref=1.0.0"
+  assign_public_ip         = true
+  application_path         = "/v1/service" 
+  cluster_name             = "ecs-cluster-name"
+  external_lb_listener_arn = "arn:aws:elasticloadbalancing:region:account-id:listener/app/extlb"
+  external_lb_name         = "extlb"
+  internal_lb_listener_arn = ""
+  internal_lb_name         = ""
+  is_exposed_externally    = true
+  launch_type              = "FARGATE"
+  priority                 = 5
+  security_groups          = var.security_groups.*.id
+  service_name             = var.service_name
+  subnets                  = var.subnets.*.id
+  task_definition_arn      = aws_ecs_task_definition.bar.arn
   vpc_id                   = "vpc-124552462"
   tags                     = "${merge(local.common_tags, var.tags)}"
 }
@@ -62,31 +71,35 @@ module "ecs_service" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
+| alarm_actions | The list of actions to execute when this alarm transitions into an ALARM state from any other state | list(string) | `[]` | no |
+| assign_public_ip | Assign a public IP address to the ENI. Required for Fargate services | boolean | `false` | no |
 | application_path | The path which the load balancer will route to. /* will be appended | string | - | yes |
 | cluster_name | The name of the ECS cluster to deploy the service too | string | - | yes |
-| container_healthcheck | The command which will be used for the health checks inside the container | string | `wget --quiet --tries=1 --spider --timeout=30 http://localhost:8080/actuator/health || exit 1` | no |
 | container_port | The port number which the application is listening to inside the container | number | `8080` | no |
-| cpu_reservation | The amount of CPU to reserve on the cluster for the task | number | `128` | no |
 | desired_count | The desired amount of services running at any given time | number | `2` | no |
 | deregistration_delay | The number of seconds the load balancer waits before setting the service to unused from draining | number | `30` | no |
-| docker_image | The docker image to be used for the task definition | string | `-` | yes |
+| enable_ecs_managed_tags | Specifies whether to enable Amazon ECS managed tags for the tasks within the service | boolean | `false` | no |
 | external_lb_listener_arn | The external load balancers ARN | string | `-` | yes |
+| external_lb_name | The friendly name of the external load balancer | string | `-` | yes |
 | healthcheck_grace_period | The grace period to give the healthchecks | number | `300` | no |
 | healthcheck_path | The path which will be used for healthchecks | number | `/actuator/health` | no |
 | healthy_threshold | The number of healthchecks until a service is deemed healthy | number | `2` |
 | internal_lb_listener_arn | The internal load balancers ARN | string | `-` | yes |
-| java_options | The Java Options environment variables to apply in the container | string | `` | no |
+| internal_lb_name | The friendly name of the internal load balancer | string | `-` | yes |
 | is_exposed_externally | Determines if the service will be attached to the external load balancer | boolean | `false` | no |
-| memory_limit | The hard memory limit for the task | number | `512` | no |
-| memory_reservation | The amount of memory to reserve for the task | `512` | no | 
-| priority | The priority of the target group in the load balancer | `1` | no |
+| launch_type | The launch type on which to run your service | string | `EC2` | no | 
+| placement_constraints | The rules that are taken into consideration during task placement | list(map(object({type  = string expression = string}))) | `[]` | no |
+| placement_strategy | Service level strategy rules that are taken into consideration during task placement | list(map(object({type  = string field = string}))) | `[ { type  = "spread" field = "attribute:ecs.availability-zone" }, {type  = "binpack" field = "memory"}]` | no |
+| platform_version | The platform version on which to run your service | string | `LATEST` | no |
+| priority | The priority of the target group in the load balancer | number | `1` | no |
+| propagate_tags | Specifies whether to propagate the tags from the task definition or the service to the tasks | string | `TASK_DEFINITION` | no |
+| scheduling_strategy | The scheduling strategy to use for the service | string | `REPLICA` | no |
+| security_groups | The security groups associated with the task or service. Required for Fargate services | list(string) | `[]` | no |
 | service_name | The name of the service | `-` | yes |
 | service_role_arn | The ARN of the IAM role which will be attached at the service level | `arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole` | no |
-| splunk_token | The Splunk token for the HTTP Event Collector | `-` | yes |
-| splunk_url | The Splunk URL for the HTTP Event Collector | `-` | yes |
-| spring_profile | The spring profile(s) which will be enabled in the application | `-` | no |
-| tags | A map of tags to add to the appropriate resources | map | `<map>` | no |
-| task_role_arn | The ARN of the IAM role which will be attached at the task definition level | string | `-` | no |
+| subnets | The subnets associated with the task or service | list(string) | `[]` | no |
+| tags | A map of tags to add to the appropriate resources | map(string) | `<map>` | no |
+| task_definition_arn | The full ARN of the task definition that you want to run in your service | string | `-` | yes |
 | unhealthy_threshold | The number of healthchecks until a service is deemed unhealthy | number | `3` | no |
 | vpc_id | The VPC ID which the load balancer listener(s) will be part of | string | `-` | yes |
 
