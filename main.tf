@@ -98,7 +98,6 @@ resource "aws_ecs_service" "fargate_service" {
   launch_type                       = var.launch_type
   enable_ecs_managed_tags           = var.enable_ecs_managed_tags
   propagate_tags                    = var.propagate_tags
-  ordered_placement_strategy        = var.placement_strategy
   network_configuration {
     subnets          = var.subnets
     security_groups  = var.security_groups
