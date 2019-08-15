@@ -115,10 +115,10 @@ variable "placement_strategy" {
     }
   ]
   description = "The orded placement strategy which should be followed by the service"
-  type        = list(map(object({
+  type        = list(object({
     type  = string
     field = string
-  })))
+  }))
 }
 
 variable "platform_version" {
