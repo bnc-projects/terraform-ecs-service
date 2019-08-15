@@ -71,8 +71,34 @@ resource "aws_ecs_service" "ec2_service" {
   scheduling_strategy               = var.scheduling_strategy
   enable_ecs_managed_tags           = var.enable_ecs_managed_tags
   propagate_tags                    = var.propagate_tags
-  ordered_placement_strategy        = var.placement_strategy
-  placement_constraints             = var.placement_constraints
+
+  dynamic "ordered_placement_strategy" {
+    for_each = var.placement_strategy
+    iterator = placement_strategy
+    content {
+      type  = placement_strategy.value.type
+      field = placement_strategy.value.field
+    }
+  }
+
+  dynamic "placement_constraints" {
+    for_each = var.placement_constraints
+    iterator = placement_constraints
+    content {
+      type       = placement_constraints.value.type
+      expression = placement_constraints.value.expression
+    }
+  }
+
+  dynamic "ordered_placement_strategy" {
+    for_each = var.placement_strategy
+    iterator = placement_strategy
+    content {
+      type  = placement_strategy.value.type
+      field = placement_strategy.value.field
+    }
+  }
+
   load_balancer {
     target_group_arn = aws_lb_target_group.target_group.arn
     container_name   = var.service_name
@@ -98,11 +124,13 @@ resource "aws_ecs_service" "fargate_service" {
   launch_type                       = var.launch_type
   enable_ecs_managed_tags           = var.enable_ecs_managed_tags
   propagate_tags                    = var.propagate_tags
+
   network_configuration {
     subnets          = var.subnets
     security_groups  = var.security_groups
     assign_public_ip = var.assign_public_ip
   }
+  
   load_balancer {
     target_group_arn = aws_lb_target_group.target_group.arn
     container_name   = var.service_name
