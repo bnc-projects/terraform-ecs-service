@@ -16,6 +16,24 @@ data "aws_iam_policy_document" "service_assume_role" {
   }
 }
 
+data "aws_iam_policy_document" "fargate_service_assume_role" {
+  statement {
+    sid    = "AllowTravisCIToAssumeTheRole"
+    effect = "Allow"
+
+    actions = [
+      "sts:AssumeRole"
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = [
+        "ecs-tasks.amazonaws.com"
+      ]
+    }
+  }
+}
+
 resource "aws_lb_target_group" "target_group" {
   deregistration_delay = var.deregistration_delay
   health_check {
@@ -32,6 +50,7 @@ resource "aws_lb_target_group" "target_group" {
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
   tags                 = var.tags
+  target_type =  var.launch_type == "EC2" ? "instance" : "ip"
 }
 
 resource "aws_lb_listener_rule" "https_listener_rule" {
@@ -49,13 +68,15 @@ resource "aws_lb_listener_rule" "https_listener_rule" {
 }
 
 resource "aws_iam_role" "service" {
+  count              = var.launch_type == "EC2" ? 1 : 0
   name               = var.service_name
   assume_role_policy = data.aws_iam_policy_document.service_assume_role.json
   tags               = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_service_policy" {
-  role       = aws_iam_role.service.name
+  count      = var.launch_type == "EC2" ? 1 : 0
+  role       = aws_iam_role.service[0].name
   policy_arn = var.service_role_arn
 }
 
@@ -65,7 +86,7 @@ resource "aws_ecs_service" "ec2_service" {
   cluster                           = var.cluster_name
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = var.healthcheck_grace_period
-  iam_role                          = aws_iam_role.service.arn
+  iam_role                          = aws_iam_role.service[0].arn
   task_definition                   = var.task_definition_arn
   launch_type                       = var.launch_type
   scheduling_strategy               = var.scheduling_strategy
@@ -112,13 +133,25 @@ resource "aws_ecs_service" "ec2_service" {
   }
 }
 
+resource "aws_iam_role" "fargate" {
+  count              = var.launch_type == "FARGATE" ? 1 : 0
+  name               = var.service_name
+  assume_role_policy = data.aws_iam_policy_document.fargate_service_assume_role.json
+  tags               = var.tags
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_fargate_service_policy" {
+  count      = var.launch_type == "FARGATE" ? 1 : 0
+  role       = aws_iam_role.fargate[0].name
+  policy_arn = var.service_role_arn
+}
+
 resource "aws_ecs_service" "fargate_service" {
   count                             = var.launch_type == "FARGATE" ? 1 : 0
   name                              = var.service_name
   cluster                           = var.cluster_name
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = var.healthcheck_grace_period
-  iam_role                          = aws_iam_role.service.arn
   task_definition                   = var.task_definition_arn
   platform_version                  = var.platform_version
   launch_type                       = var.launch_type
@@ -130,7 +163,7 @@ resource "aws_ecs_service" "fargate_service" {
     security_groups  = var.security_groups
     assign_public_ip = var.assign_public_ip
   }
-  
+
   load_balancer {
     target_group_arn = aws_lb_target_group.target_group.arn
     container_name   = var.service_name
