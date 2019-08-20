@@ -50,7 +50,7 @@ resource "aws_lb_target_group" "target_group" {
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
   tags                 = var.tags
-  target_type =  var.launch_type == "EC2" ? "instance" : "ip"
+  target_type          = var.launch_type == "EC2" ? "instance" : "ip"
 }
 
 resource "aws_lb_listener_rule" "https_listener_rule" {
@@ -140,9 +140,22 @@ resource "aws_iam_role" "fargate" {
   tags               = var.tags
 }
 
+resource "aws_iam_role" "fargate_task_role" {
+  count              = var.launch_type == "FARGATE" ? 1 : 0
+  name_prefix        = var.service_name
+  assume_role_policy = data.aws_iam_policy_document.fargate_service_assume_role.json
+  tags               = var.tags
+}
+
 resource "aws_iam_role_policy_attachment" "ecs_fargate_service_policy" {
   count      = var.launch_type == "FARGATE" ? 1 : 0
   role       = aws_iam_role.fargate[0].name
+  policy_arn = var.service_role_arn
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_fargate_task_ecr_policy" {
+  count      = var.launch_type == "FARGATE" ? 1 : 0
+  role       = aws_iam_role.fargate_task_role[0].name
   policy_arn = var.service_role_arn
 }
 
