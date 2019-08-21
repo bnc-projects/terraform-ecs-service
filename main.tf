@@ -17,7 +17,7 @@ data "aws_iam_policy_document" "service_assume_role" {
 }
 
 resource "aws_lb_target_group" "target_group" {
-  count                = var.is_exposed_externally == null ? 0 : 1
+  count                = var.attach_load_balancer ? 1 : 0
   deregistration_delay = var.deregistration_delay
   health_check {
     healthy_threshold   = var.healthy_threshold
@@ -37,7 +37,7 @@ resource "aws_lb_target_group" "target_group" {
 }
 
 resource "aws_lb_listener_rule" "https_listener_rule" {
-  count        = var.is_exposed_externally == null ? 0 : 1
+  count        = var.attach_load_balancer ? 1 : 0
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.target_group[0].arn
@@ -105,7 +105,7 @@ resource "aws_ecs_service" "ec2_service" {
   }
 
   dynamic "load_balancer" {
-    for_each = var.is_exposed_externally == null ? [] : list(var.is_exposed_externally)
+    for_each = var.attach_load_balancer ? list(var.attach_load_balancer) : []
 
     content {
       target_group_arn = aws_lb_target_group.target_group[0].arn
@@ -140,7 +140,7 @@ resource "aws_ecs_service" "fargate_service" {
   }
 
   dynamic "load_balancer" {
-    for_each = var.is_exposed_externally == null ? [] : list(var.is_exposed_externally)
+    for_each = var.attach_load_balancer ? list(var.attach_load_balancer) : []
 
     content {
       target_group_arn = aws_lb_target_group.target_group[0].arn
@@ -157,7 +157,7 @@ resource "aws_ecs_service" "fargate_service" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
-  count               = var.is_exposed_externally == null ? 0 : 1
+  count               = var.attach_load_balancer ? 1 : 0
   alarm_actions       = var.alarm_actions
   alarm_description   = format("%s HTTP 500 response code alarm", var.service_name)
   alarm_name          = format("%s-HTTP-5XX-Alarm", var.service_name)
@@ -177,7 +177,7 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
-  count               = var.is_exposed_externally == null ? 0 : 1
+  count               = var.attach_load_balancer ? 1 : 0
   alarm_actions       = var.alarm_actions
   alarm_description   = format("%s service has no healthy instances", var.service_name)
   alarm_name          = format("%s-not-healthy", var.service_name)

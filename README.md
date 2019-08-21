@@ -74,6 +74,7 @@ module "ecs_service" {
 | alarm_actions | The list of actions to execute when this alarm transitions into an ALARM state from any other state | list(string) | `[]` | no |
 | assign_public_ip | Assign a public IP address to the ENI. Required for Fargate services | boolean | `false` | no |
 | application_path | The path which the load balancer will route to. /* will be appended | string | - | yes |
+| attach_load_balancer | Set to true if load balancers will be attached | boolean | `false` | no |
 | cluster_name | The name of the ECS cluster to deploy the service too | string | - | yes |
 | container_port | The port number which the application is listening to inside the container | number | `8080` | no |
 | desired_count | The desired amount of services running at any given time | number | `2` | no |

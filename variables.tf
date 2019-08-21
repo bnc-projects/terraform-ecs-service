@@ -16,6 +16,12 @@ variable "application_path" {
   type        = string
 }
 
+variable "attach_load_balancer" {
+  default     = false
+  description = "Set to true if load balancers will be attached"
+  type        = bool
+}
+
 variable "cluster_name" {
   description = "The name of the cluster where the service will be launched"
   type        = string
