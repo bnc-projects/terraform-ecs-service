@@ -17,6 +17,7 @@ data "aws_iam_policy_document" "service_assume_role" {
 }
 
 resource "aws_lb_target_group" "target_group" {
+  count                = var.is_exposed_externally == null ? 0 : 1
   deregistration_delay = var.deregistration_delay
   health_check {
     healthy_threshold   = var.healthy_threshold
@@ -36,9 +37,10 @@ resource "aws_lb_target_group" "target_group" {
 }
 
 resource "aws_lb_listener_rule" "https_listener_rule" {
+  count        = var.is_exposed_externally == null ? 0 : 1
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.target_group.arn
+    target_group_arn = aws_lb_target_group.target_group[0].arn
   }
   condition {
     field  = "path-pattern"
@@ -102,10 +104,14 @@ resource "aws_ecs_service" "ec2_service" {
     }
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.target_group.arn
-    container_name   = var.service_name
-    container_port   = var.container_port
+  dynamic "load_balancer" {
+    for_each = var.is_exposed_externally == null ? [] : list(var.is_exposed_externally)
+
+    content {
+      target_group_arn = aws_lb_target_group.target_group[0].arn
+      container_name   = var.service_name
+      container_port   = var.container_port
+    }
   }
 
   lifecycle {
@@ -133,10 +139,14 @@ resource "aws_ecs_service" "fargate_service" {
     assign_public_ip = var.assign_public_ip
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.target_group.arn
-    container_name   = var.service_name
-    container_port   = var.container_port
+  dynamic "load_balancer" {
+    for_each = var.is_exposed_externally == null ? [] : list(var.is_exposed_externally)
+
+    content {
+      target_group_arn = aws_lb_target_group.target_group[0].arn
+      container_name   = var.service_name
+      container_port   = var.container_port
+    }
   }
 
   lifecycle {
@@ -147,13 +157,14 @@ resource "aws_ecs_service" "fargate_service" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
+  count               = var.is_exposed_externally == null ? 0 : 1
   alarm_actions       = var.alarm_actions
   alarm_description   = format("%s HTTP 500 response code alarm", var.service_name)
   alarm_name          = format("%s-HTTP-5XX-Alarm", var.service_name)
   comparison_operator = "GreaterThanThreshold"
   dimensions          = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
-    TargetGroup  = aws_lb_target_group.target_group.arn_suffix
+    TargetGroup  = aws_lb_target_group.target_group[0].arn_suffix
   }
   evaluation_periods  = 1
   metric_name         = "HTTPCode_Target_5XX_Count"
@@ -166,13 +177,14 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
+  count               = var.is_exposed_externally == null ? 0 : 1
   alarm_actions       = var.alarm_actions
   alarm_description   = format("%s service has no healthy instances", var.service_name)
   alarm_name          = format("%s-not-healthy", var.service_name)
   comparison_operator = "LessThanThreshold"
   dimensions          = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
-    TargetGroup  = aws_lb_target_group.target_group.arn_suffix
+    TargetGroup  = aws_lb_target_group.target_group[0].arn_suffix
   }
   evaluation_periods  = 1
   metric_name         = "HealthyHostCount"

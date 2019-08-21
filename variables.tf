@@ -11,6 +11,7 @@ variable "assign_public_ip" {
 }
 
 variable "application_path" {
+  default     = null
   description = "The path that the service will listen to requests on"
   type        = string
 }
@@ -45,11 +46,13 @@ variable "enable_ecs_managed_tags" {
 }
 
 variable "external_lb_listener_arn" {
+  default     = null
   description = "The external load balancers ARN"
   type        = string
 }
 
 variable "external_lb_name" {
+  default     = null
   description = "The external load balancer name"
   type        = string
 }
@@ -73,17 +76,19 @@ variable "healthy_threshold" {
 }
 
 variable "internal_lb_listener_arn" {
+  default     = null
   description = "The internal load balancers ARN"
   type        = string
 }
 
 variable "internal_lb_name" {
+  default     = null
   description = "The internal load balancer name"
   type        = string
 }
 
 variable "is_exposed_externally" {
-  default     = false
+  default     = null
   description = "Determines if the service will be attached to the external load balancer"
   type        = bool
 }

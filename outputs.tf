@@ -1,5 +1,5 @@
 output "target_group_name" {
-  value = aws_lb_target_group.target_group.name
+  value = var.is_exposed_externally == null ? null : aws_lb_target_group.target_group[0].name
 }
 
 output "ecs_service_name" {
