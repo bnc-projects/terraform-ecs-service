@@ -69,7 +69,7 @@ resource "aws_ecs_service" "ec2_service" {
   name                              = var.service_name
   cluster                           = var.cluster_name
   desired_count                     = var.desired_count
-  health_check_grace_period_seconds = var.healthcheck_grace_period
+  health_check_grace_period_seconds = var.attach_load_balancer ? var.healthcheck_grace_period : null
   iam_role                          = aws_iam_role.service[0].arn
   task_definition                   = var.task_definition_arn
   launch_type                       = var.launch_type
@@ -126,7 +126,7 @@ resource "aws_ecs_service" "fargate_service" {
   name                              = var.service_name
   cluster                           = var.cluster_name
   desired_count                     = var.desired_count
-  health_check_grace_period_seconds = var.healthcheck_grace_period
+  health_check_grace_period_seconds = var.attach_load_balancer ? var.healthcheck_grace_period : null
   task_definition                   = var.task_definition_arn
   platform_version                  = var.platform_version
   launch_type                       = var.launch_type
