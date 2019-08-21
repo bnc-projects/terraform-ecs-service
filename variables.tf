@@ -22,8 +22,8 @@ variable "attach_load_balancer" {
   type        = bool
 }
 
-variable "cluster_name" {
-  description = "The name of the cluster where the service will be launched"
+variable "cluster_arn" {
+  description = "The ARN of the cluster where the service will be launched"
   type        = string
 }
 

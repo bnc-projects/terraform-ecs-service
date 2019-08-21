@@ -67,7 +67,7 @@ resource "aws_iam_role_policy_attachment" "ecs_service_policy" {
 resource "aws_ecs_service" "ec2_service" {
   count                             = var.launch_type == "EC2" ? 1 : 0
   name                              = var.service_name
-  cluster                           = var.cluster_name
+  cluster                           = var.cluster_arn
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = var.attach_load_balancer ? var.healthcheck_grace_period : null
   iam_role                          = aws_iam_role.service[0].arn
@@ -124,7 +124,7 @@ resource "aws_ecs_service" "ec2_service" {
 resource "aws_ecs_service" "fargate_service" {
   count                             = var.launch_type == "FARGATE" ? 1 : 0
   name                              = var.service_name
-  cluster                           = var.cluster_name
+  cluster                           = var.cluster_arn
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = var.attach_load_balancer ? var.healthcheck_grace_period : null
   task_definition                   = var.task_definition_arn
