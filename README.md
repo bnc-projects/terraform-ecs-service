@@ -2,7 +2,7 @@
 
 **This module currently only supports deploying a single task per service.**
 
-Terraform module which creates a ECS service to be deployed on the specified cluster.  
+Terraform module which creates a ECS service to be deployed Fargate or EC2.
 
 ## Examples
 
@@ -96,7 +96,7 @@ module "ecs_service" {
 | scheduling_strategy | The scheduling strategy to use for the service | string | `REPLICA` | no |
 | security_groups | The security groups associated with the task or service. Required for Fargate services | list(string) | `[]` | no |
 | service_name | The name of the service | `-` | yes |
-| service_role_arn | The ARN of the IAM role which will be attached at the service level | `arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole` | no |
+| service_role_policy_arn | The ARN of the IAM role which will be attached at the service level | `arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole` | no |
 | subnets | The subnets associated with the task or service | list(string) | `[]` | no |
 | tags | A map of tags to add to the appropriate resources | map(string) | `<map>` | no |
 | task_definition_arn | The full ARN of the task definition that you want to run in your service | string | `-` | yes |

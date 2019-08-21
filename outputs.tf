@@ -5,11 +5,3 @@ output "target_group_name" {
 output "ecs_service_name" {
   value = var.launch_type == "EC2" ? aws_ecs_service.ec2_service[0].id : aws_ecs_service.fargate_service[0].id
 }
-
-output "ecs_service_execution_role" {
-  value = var.launch_type == "EC2" ? aws_iam_role.service[0].arn : aws_iam_role.fargate[0].arn
-}
-
-output "ecs_service_task_role" {
-  value = var.launch_type == "FARGATE" ? aws_iam_role.fargate_task_role[0].arn : ""
-}

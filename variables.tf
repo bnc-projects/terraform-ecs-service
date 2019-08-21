@@ -155,9 +155,9 @@ variable "service_name" {
   type        = string
 }
 
-variable "service_role_arn" {
+variable "service_role_policy_arn" {
   default     = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
-  description = "The ARN of the IAM role which will be attached at the service level"
+  description = "The ARN of the IAM policy which will be attached at the service level"
   type        = string
 }
 

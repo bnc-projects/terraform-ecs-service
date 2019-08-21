@@ -1,6 +1,6 @@
 data "aws_iam_policy_document" "service_assume_role" {
   statement {
-    sid    = "AllowTravisCIToAssumeTheRole"
+    sid    = "AllowECSToAssumeRoles"
     effect = "Allow"
 
     actions = [
@@ -11,24 +11,6 @@ data "aws_iam_policy_document" "service_assume_role" {
       type        = "Service"
       identifiers = [
         "ecs.amazonaws.com"
-      ]
-    }
-  }
-}
-
-data "aws_iam_policy_document" "fargate_service_assume_role" {
-  statement {
-    sid    = "AllowTravisCIToAssumeTheRole"
-    effect = "Allow"
-
-    actions = [
-      "sts:AssumeRole"
-    ]
-
-    principals {
-      type        = "Service"
-      identifiers = [
-        "ecs-tasks.amazonaws.com"
       ]
     }
   }
@@ -69,7 +51,7 @@ resource "aws_lb_listener_rule" "https_listener_rule" {
 
 resource "aws_iam_role" "service" {
   count              = var.launch_type == "EC2" ? 1 : 0
-  name               = var.service_name
+  name               = format("%s", var.service_name)
   assume_role_policy = data.aws_iam_policy_document.service_assume_role.json
   tags               = var.tags
 }
@@ -77,7 +59,7 @@ resource "aws_iam_role" "service" {
 resource "aws_iam_role_policy_attachment" "ecs_service_policy" {
   count      = var.launch_type == "EC2" ? 1 : 0
   role       = aws_iam_role.service[0].name
-  policy_arn = var.service_role_arn
+  policy_arn = var.service_role_policy_arn
 }
 
 resource "aws_ecs_service" "ec2_service" {
@@ -131,32 +113,6 @@ resource "aws_ecs_service" "ec2_service" {
       "desired_count"
     ]
   }
-}
-
-resource "aws_iam_role" "fargate" {
-  count              = var.launch_type == "FARGATE" ? 1 : 0
-  name               = var.service_name
-  assume_role_policy = data.aws_iam_policy_document.fargate_service_assume_role.json
-  tags               = var.tags
-}
-
-resource "aws_iam_role" "fargate_task_role" {
-  count              = var.launch_type == "FARGATE" ? 1 : 0
-  name_prefix        = var.service_name
-  assume_role_policy = data.aws_iam_policy_document.fargate_service_assume_role.json
-  tags               = var.tags
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_fargate_service_policy" {
-  count      = var.launch_type == "FARGATE" ? 1 : 0
-  role       = aws_iam_role.fargate[0].name
-  policy_arn = var.service_role_arn
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_fargate_task_ecr_policy" {
-  count      = var.launch_type == "FARGATE" ? 1 : 0
-  role       = aws_iam_role.fargate_task_role[0].name
-  policy_arn = var.service_role_arn
 }
 
 resource "aws_ecs_service" "fargate_service" {
