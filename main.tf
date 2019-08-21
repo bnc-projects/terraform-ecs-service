@@ -48,6 +48,7 @@ resource "aws_lb_listener_rule" "https_listener_rule" {
       format("%s/*", var.application_path),
     ]
   }
+  priority     = var.priority
   listener_arn = var.is_exposed_externally ? var.external_lb_listener_arn : var.internal_lb_listener_arn
 }
 
