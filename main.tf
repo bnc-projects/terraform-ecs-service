@@ -68,7 +68,7 @@ resource "aws_iam_role_policy_attachment" "ecs_service_policy" {
 resource "aws_ecs_service" "ec2_service" {
   count                             = var.launch_type == "EC2" ? 1 : 0
   name                              = var.service_name
-  cluster                           = var.cluster_arn
+  cluster                           = var.cluster
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = var.attach_load_balancer ? var.healthcheck_grace_period : null
   iam_role                          = aws_iam_role.service[0].arn
@@ -125,7 +125,7 @@ resource "aws_ecs_service" "ec2_service" {
 resource "aws_ecs_service" "fargate_service" {
   count                             = var.launch_type == "FARGATE" ? 1 : 0
   name                              = var.service_name
-  cluster                           = var.cluster_arn
+  cluster                           = var.cluster
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = var.attach_load_balancer ? var.healthcheck_grace_period : null
   task_definition                   = var.task_definition_arn
@@ -180,7 +180,7 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
 resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
   count               = var.attach_load_balancer ? 1 : 0
   alarm_actions       = var.alarm_actions
-  alarm_description   = format("%s service has no healthy instances", var.service_name)
+  alarm_description   = format("%s service is below desired running count", var.service_name)
   alarm_name          = format("%s-not-healthy", var.service_name)
   comparison_operator = "LessThanThreshold"
   dimensions          = {
@@ -191,8 +191,28 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
   metric_name         = "HealthyHostCount"
   namespace           = "AWS/ApplicationELB"
   period              = "60"
-  statistic           = "Minimum"
+  statistic           = "Sample count"
   tags                = var.tags
-  threshold           = 0
+  threshold           = var.desired_count
+  treat_missing_data  = "breaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm_no_lb" {
+  count               = var.attach_load_balancer ? 0 : 1
+  alarm_actions       = var.alarm_actions
+  alarm_description   = format("%s service is below desired running count", var.service_name)
+  alarm_name          = format("%s-not-healthy", var.service_name)
+  comparison_operator = "LessThanThreshold"
+  dimensions          = {
+    ServiceName = var.service_name
+    ClusterName = var.cluster
+  }
+  evaluation_periods  = 1
+  metric_name         = "MemoryUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Sample count"
+  tags                = var.tags
+  threshold           = var.desired_count
   treat_missing_data  = "breaching"
 }
