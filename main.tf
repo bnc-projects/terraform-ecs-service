@@ -191,7 +191,7 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
   metric_name         = "HealthyHostCount"
   namespace           = "AWS/ApplicationELB"
   period              = "60"
-  statistic           = "Sample count"
+  statistic           = "SampleCount"
   tags                = var.tags
   threshold           = var.desired_count
   treat_missing_data  = "breaching"
@@ -211,7 +211,7 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm_no_lb" {
   metric_name         = "MemoryUtilization"
   namespace           = "AWS/ECS"
   period              = "60"
-  statistic           = "Sample count"
+  statistic           = "SampleCount"
   tags                = var.tags
   threshold           = var.desired_count
   treat_missing_data  = "breaching"
