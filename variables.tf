@@ -1,33 +1,35 @@
 variable "alarm_actions" {
+  default     = []
   description = "The list of ARNs which will be triggered when the alarms trigger"
-  type        = list
+  type        = list(string)
+}
+
+variable "assign_public_ip" {
+  default     = false
+  description = "Assign a public IP address to the ENI"
+  type        = bool
 }
 
 variable "application_path" {
+  default     = null
   description = "The path that the service will listen to requests on"
   type        = string
 }
 
-variable "cluster_name" {
-  description = "The name of the cluster where the service will be launched"
-  type        = string
+variable "attach_load_balancer" {
+  default     = false
+  description = "Set to true if load balancers will be attached"
+  type        = bool
 }
 
-variable "container_healthcheck" {
-  default     = "wget --quiet --tries=1 --spider --timeout=30 http://localhost:8080/actuator/health || exit 1"
-  description = "The command to run for the container healthcheck"
+variable "cluster" {
+  description = "The short name or ARN of the cluster where the service will be launched"
   type        = string
 }
 
 variable "container_port" {
   default     = 8080
   description = "The port number which the application is listening to inside the container"
-  type        = number
-}
-
-variable "cpu_reservation" {
-  default     = 128
-  description = "The amount of CPU to reserve on the cluster for the task"
   type        = number
 }
 
@@ -43,24 +45,27 @@ variable "deregistration_delay" {
   type        = number
 }
 
-variable "docker_image" {
-  description = "The docker image to be used for the task definition"
-  type        = string
+variable "enable_ecs_managed_tags" {
+  default     = false
+  description = "Specifies whether to enable Amazon ECS managed tags for the tasks within the service"
+  type        = bool
 }
 
 variable "external_lb_listener_arn" {
+  default     = null
   description = "The external load balancers ARN"
   type        = string
 }
 
 variable "external_lb_name" {
+  default     = null
   description = "The external load balancer name"
   type        = string
 }
 
 variable "healthcheck_grace_period" {
   default     = 300
-  description = "The grace period to give the healthchecks"
+  description = "The grace period to give the ECS service healthchecks"
   type        = number
 }
 
@@ -77,37 +82,59 @@ variable "healthy_threshold" {
 }
 
 variable "internal_lb_listener_arn" {
+  default     = null
   description = "The internal load balancers ARN"
   type        = string
 }
 
 variable "internal_lb_name" {
+  default     = null
   description = "The internal load balancer name"
   type        = string
 }
 
-variable "java_options" {
-  default     = ""
-  description = "The Java Options environment variables to apply in the container"
-  type        = string
-}
-
 variable "is_exposed_externally" {
-  default     = false
+  default     = null
   description = "Determines if the service will be attached to the external load balancer"
   type        = bool
 }
 
-variable "memory_limit" {
-  default     = 512
-  description = "The hard memory limit for the task"
-  type        = number
+variable "launch_type" {
+  default     = "EC2"
+  description = "The launch type on which to run your service"
+  type        = string
 }
 
-variable "memory_reservation" {
-  default     = 512
-  description = "The amount of memory to reserve for the task"
-  type        = number
+variable "placement_constraints" {
+  default     = []
+  description = "The rules that are taken into consideration during task placement"
+  type        = list(map(object({
+    type       = string
+    expression = string
+  })))
+}
+
+variable "placement_strategy" {
+  default     = [
+    {
+      type  = "spread"
+      field = "attribute:ecs.availability-zone"
+    },
+    {
+      type  = "binpack"
+      field = "memory"
+    }
+  ]
+  description = "The orded placement strategy which should be followed by the service"
+  type        = list(object({
+    type  = string
+    field = string
+  }))
+}
+
+variable "platform_version" {
+  default     = "LATEST"
+  description = "The platform version on which to run your service"
 }
 
 variable "priority" {
@@ -116,31 +143,39 @@ variable "priority" {
   type        = number
 }
 
+variable "propagate_tags" {
+  default     = "TASK_DEFINITION"
+  description = "Specifies whether to propagate the tags from the task definition or the service to the tasks"
+  type        = string
+}
+
+variable "scheduling_strategy" {
+  default     = "REPLICA"
+  description = "The scheduling strategy to use for the service"
+  type        = string
+}
+
+variable "security_groups" {
+  default     = []
+  description = "The security groups associated with the task or service"
+  type        = list(string)
+}
+
 variable "service_name" {
   description = "The name of the service which will be deployed"
   type        = string
 }
 
-variable "service_role_arn" {
+variable "service_role_policy_arn" {
   default     = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
-  description = "The ARN of the IAM role which will be attached at the service level"
+  description = "The ARN of the IAM policy which will be attached at the service level"
   type        = string
 }
 
-variable "splunk_token" {
-  description = "The Splunk token for the HTTP Event Collector"
-  type        = string
-}
-
-variable "splunk_url" {
-  description = "The Splunk URL for the HTTP Event Collector"
-  type        = string
-}
-
-variable "spring_profile" {
-  default     = ""
-  description = "The spring profile(s) which will be enabled in the application"
-  type        = string
+variable "subnets" {
+  default     = []
+  description = "The subnets associated with the task or service"
+  type        = list(string)
 }
 
 variable "tags" {
@@ -149,9 +184,9 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "task_role_arn" {
-  default     = ""
-  description = "The ARN of the IAM role which will be attached at the task definition level"
+variable "task_definition_arn" {
+  description = "The ARN the task definition level"
+  type        = string
 }
 
 variable "unhealthy_threshold" {
