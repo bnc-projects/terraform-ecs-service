@@ -33,6 +33,18 @@ variable "container_port" {
   type        = number
 }
 
+variable "cpu_utilization_alarm_threshold" {
+  default     = 75
+  description = "The threshold of service cpu utilization"
+  type        = number
+}
+
+variable "cpu_utilization_evaluation_periods" {
+  default     = 5
+  description = "The evaluation periods of service cpu utilization alarm"
+  type        = number
+}
+
 variable "desired_count" {
   default     = 2
   description = "The desired amount of services running at any given time"
@@ -103,6 +115,18 @@ variable "launch_type" {
   default     = "EC2"
   description = "The launch type on which to run your service"
   type        = string
+}
+
+variable "memory_utilization_alarm_threshold" {
+  default     = 90
+  description = "The threshold of service memory utilization"
+  type        = number
+}
+
+variable "memory_utilization_evaluation_periods" {
+  default     = 5
+  description = "The evaluation periods of service memory utilization alarm"
+  type        = number
 }
 
 variable "placement_constraints" {
