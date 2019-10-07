@@ -33,6 +33,12 @@ variable "container_port" {
   type        = number
 }
 
+variable "cpu_utilization_alarm_threshold" {
+  default     = 75
+  description = "The threshold of service cpu utilization"
+  type        = number
+}
+
 variable "desired_count" {
   default     = 2
   description = "The desired amount of services running at any given time"
@@ -103,6 +109,12 @@ variable "launch_type" {
   default     = "EC2"
   description = "The launch type on which to run your service"
   type        = string
+}
+
+variable "memory_utilization_alarm_threshold" {
+  default     = 90
+  description = "The threshold of service memory utilization"
+  type        = number
 }
 
 variable "placement_constraints" {
@@ -198,14 +210,4 @@ variable "unhealthy_threshold" {
 variable "vpc_id" {
   description = "The VPC ID which the load balancer listener(s) will be part of"
   type        = string
-}
-
-variable "memory_utilization_alarm_threshold" {
-  description = "The threshold of service memory utilization"
-  type        = number
-}
-
-variable "cpu_utilization_alarm_threshold" {
-  description = "The threshold of service cpu utilization"
-  type        = number
 }
