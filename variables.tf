@@ -33,6 +33,12 @@ variable "container_port" {
   type        = number
 }
 
+variable "cpu_utilization_alarm_statistic" {
+  default     = "Average"
+  description = "The statistic of service cpu utilization"
+  type        = string
+}
+
 variable "cpu_utilization_alarm_threshold" {
   default     = 75
   description = "The threshold of service cpu utilization"
@@ -114,6 +120,12 @@ variable "is_exposed_externally" {
 variable "launch_type" {
   default     = "EC2"
   description = "The launch type on which to run your service"
+  type        = string
+}
+
+variable "memory_utilization_alarm_statistic" {
+  default     = "Average"
+  description = "The statistic of service memory utilization"
   type        = string
 }
 

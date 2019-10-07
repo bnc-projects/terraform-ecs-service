@@ -231,7 +231,7 @@ resource "aws_cloudwatch_metric_alarm" "service_cpu_utilization_alarm" {
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
   period              = "60"
-  statistic           = "Maximum"
+  statistic           = var.cpu_utilization_alarm_statistic
   tags                = var.tags
   threshold           = var.cpu_utilization_alarm_threshold
   treat_missing_data  = "missing"
@@ -250,7 +250,7 @@ resource "aws_cloudwatch_metric_alarm" "service_memory_utilization_alarm" {
   metric_name         = "MemoryUtilization"
   namespace           = "AWS/ECS"
   period              = "60"
-  statistic           = "Maximum"
+  statistic           = var.memory_utilization_alarm_statistic
   tags                = var.tags
   threshold           = var.memory_utilization_alarm_threshold
   treat_missing_data  = "breaching"

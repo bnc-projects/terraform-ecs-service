@@ -112,6 +112,7 @@ module "ecs_service" {
 | attach_load_balancer | Set to true if load balancers will be attached | boolean | `false` | no |
 | cluster | The short name or ARN of the ECS cluster where the service will be deployed | string | - | yes |
 | container_port | The port number which the application is listening to inside the container | number | `8080` | no |
+| cpu_utilization_alarm_statistic | The statistic of service cpu utilization | string | `Average` | no |
 | cpu_utilization_alarm_threshold | The threshold of service cpu utilization | number | `75` | no |
 | cpu_utilization_evaluation_periods | The evaluation periods of service cpu utilization alarm | number | `5` | no |
 | desired_count | The desired amount of services running at any given time | number | `2` | no |
@@ -126,6 +127,7 @@ module "ecs_service" {
 | internal_lb_name | The friendly name of the internal load balancer | string | `-` | no |
 | is_exposed_externally | Determines if the service will be attached to the external load balancer | boolean | `false` | no |
 | launch_type | The launch type on which to run your service | string | `EC2` | no |
+| memory_utilization_alarm_statistic | The statistic of service memory utilization | string | `Average` | no | 
 | memory_utilization_alarm_threshold | The threshold of service memory utilization | number | `90` | no | 
 | memory_utilization_evaluation_periods | The evaluation periods of service memory utilization alarm | number | `5` | no | 
 | placement_constraints | The rules that are taken into consideration during task placement | list(map(object({type  = string expression = string}))) | `[]` | no |
