@@ -199,3 +199,13 @@ variable "vpc_id" {
   description = "The VPC ID which the load balancer listener(s) will be part of"
   type        = string
 }
+
+variable "memory_utilization_alarm_threshold" {
+  description = "The threshold of service memory utilization"
+  type        = number
+}
+
+variable "cpu_utilization_alarm_threshold" {
+  description = "The threshold of service cpu utilization"
+  type        = number
+}

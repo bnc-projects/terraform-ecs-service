@@ -216,3 +216,42 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm_no_lb" {
   threshold           = var.desired_count
   treat_missing_data  = "breaching"
 }
+
+
+resource "aws_cloudwatch_metric_alarm" "service_cpu_utilization_alarm" {
+  alarm_actions       = var.alarm_actions
+  alarm_description   = format("%s service cpu utilization is greater than %s percent of reserved cpu", var.service_name, var.cpu_utilization_alarm_threshold)
+  alarm_name          = format("%s-cpu-utilization-alarm", var.service_name)
+  comparison_operator = "GreaterThanThreshold"
+  dimensions          = {
+    ServiceName = var.service_name
+    ClusterName = var.cluster
+  }
+  evaluation_periods  = 1
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Maximum"
+  tags                = var.tags
+  threshold           = var.cpu_utilization_alarm_threshold
+  treat_missing_data  = "missing"
+}
+
+resource "aws_cloudwatch_metric_alarm" "service_memory_utilization_alarm" {
+  alarm_actions       = var.alarm_actions
+  alarm_description   = format("%s service memory utilization is greater than %s percent of reserved cpu", var.service_name, var.memory_utilization_alarm_threshold)
+  alarm_name          = format("%s-memory-utilization-alarm", var.service_name)
+  comparison_operator = "GreaterThanThreshold"
+  dimensions          = {
+    ServiceName = var.service_name
+    ClusterName = var.cluster
+  }
+  evaluation_periods  = 1
+  metric_name         = "MemoryUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Maximum"
+  tags                = var.tags
+  threshold           = var.memory_utilization_alarm_threshold
+  treat_missing_data  = "breaching"
+}
