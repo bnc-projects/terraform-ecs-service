@@ -39,6 +39,12 @@ variable "cpu_utilization_alarm_threshold" {
   type        = number
 }
 
+variable "cpu_utilization_evaluation_periods" {
+  default     = 5
+  description = "The evaluation periods of service cpu utilization alarm"
+  type        = number
+}
+
 variable "desired_count" {
   default     = 2
   description = "The desired amount of services running at any given time"
@@ -114,6 +120,12 @@ variable "launch_type" {
 variable "memory_utilization_alarm_threshold" {
   default     = 90
   description = "The threshold of service memory utilization"
+  type        = number
+}
+
+variable "memory_utilization_evaluation_periods" {
+  default     = 5
+  description = "The evaluation periods of service memory utilization alarm"
   type        = number
 }
 

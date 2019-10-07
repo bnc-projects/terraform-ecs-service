@@ -227,7 +227,7 @@ resource "aws_cloudwatch_metric_alarm" "service_cpu_utilization_alarm" {
     ServiceName = var.service_name
     ClusterName = var.cluster
   }
-  evaluation_periods  = 1
+  evaluation_periods  = var.cpu_utilization_evaluation_periods
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
   period              = "60"
@@ -246,7 +246,7 @@ resource "aws_cloudwatch_metric_alarm" "service_memory_utilization_alarm" {
     ServiceName = var.service_name
     ClusterName = var.cluster
   }
-  evaluation_periods  = 1
+  evaluation_periods  = var.memory_utilization_evaluation_periods
   metric_name         = "MemoryUtilization"
   namespace           = "AWS/ECS"
   period              = "60"
