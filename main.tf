@@ -191,7 +191,7 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
   metric_name         = "HealthyHostCount"
   namespace           = "AWS/ApplicationELB"
   period              = "60"
-  statistic           = "SampleCount"
+  statistic           = "Minimum"
   tags                = var.tags
   threshold           = var.desired_count
   treat_missing_data  = "breaching"
