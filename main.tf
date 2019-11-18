@@ -96,15 +96,6 @@ resource "aws_ecs_service" "ec2_service" {
     }
   }
 
-  dynamic "ordered_placement_strategy" {
-    for_each = var.placement_strategy
-    iterator = placement_strategy
-    content {
-      type  = placement_strategy.value.type
-      field = placement_strategy.value.field
-    }
-  }
-
   dynamic "load_balancer" {
     for_each = var.attach_load_balancer ? list(var.attach_load_balancer) : []
 
