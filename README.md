@@ -1,7 +1,5 @@
 # terraform-ecs-service
 
-**This module currently only supports deploying a single task per service.**
-
 Terraform module which creates a ECS service to be deployed Fargate or EC2.
 
 ## Examples
