@@ -120,6 +120,8 @@ resource "aws_ecs_service" "ec2_service" {
       "desired_count"
     ]
   }
+
+  tags = var.tags
 }
 
 resource "aws_ecs_service" "fargate_service" {
@@ -155,6 +157,8 @@ resource "aws_ecs_service" "fargate_service" {
       "desired_count"
     ]
   }
+
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
