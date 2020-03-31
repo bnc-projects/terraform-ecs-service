@@ -71,7 +71,7 @@ resource "aws_ecs_service" "ec2_service" {
   cluster                           = var.cluster
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = var.attach_load_balancer ? var.healthcheck_grace_period : null
-  iam_role                          = aws_iam_role.service[0].arn
+  iam_role                          = var.attach_load_balancer ? aws_iam_role.service[0].arn : null
   task_definition                   = var.task_definition_arn
   launch_type                       = var.launch_type
   scheduling_strategy               = var.scheduling_strategy
