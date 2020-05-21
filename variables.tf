@@ -154,7 +154,7 @@ variable "placement_strategy" {
   default     = [
     {
       type  = "spread"
-      field = "attribute:ecs.availability-zone"
+      field = "instanceId"
     },
     {
       type  = "binpack"
