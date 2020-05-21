@@ -154,11 +154,11 @@ variable "placement_strategy" {
   default     = [
     {
       type  = "spread"
-      field = "instanceId"
+      field = "attribute:ecs.availability-zone"
     },
     {
-      type  = "binpack"
-      field = "memory"
+      type  = "spread"
+      field = "instanceId"
     }
   ]
   description = "The orded placement strategy which should be followed by the service"
