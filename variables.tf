@@ -157,8 +157,8 @@ variable "placement_strategy" {
       field = "attribute:ecs.availability-zone"
     },
     {
-      type  = "binpack"
-      field = "memory"
+      type  = "spread"
+      field = "instanceId"
     }
   ]
   description = "The orded placement strategy which should be followed by the service"

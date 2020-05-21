@@ -43,10 +43,11 @@ resource "aws_lb_listener_rule" "https_listener_rule" {
     target_group_arn = aws_lb_target_group.target_group[0].arn
   }
   condition {
-    field  = "path-pattern"
-    values = [
-      format("%s/*", var.application_path),
-    ]
+    path_pattern {
+      values = [
+        format("%s/*", var.application_path),
+      ]
+    }
   }
   priority     = var.priority
   listener_arn = var.is_exposed_externally ? var.external_lb_listener_arn : var.internal_lb_listener_arn
