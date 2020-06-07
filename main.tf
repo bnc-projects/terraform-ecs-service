@@ -18,7 +18,7 @@ data "aws_iam_policy_document" "service_assume_role" {
 
 data "template_file" "task_definition" {
   template = file(format("%s/task-definitions/service.json", path.module))
-  vars = {
+  vars     = {
     container_healthcheck    = var.container_healthcheck
     container_name           = var.service_name
     container_port           = var.container_port
@@ -80,6 +80,8 @@ resource "aws_iam_role_policy_attachment" "ecs_service_policy" {
 resource "aws_ecs_task_definition" "service" {
   container_definitions = data.template_file.task_definition.rendered
   family                = format("%s-Task", var.service_name)
+  cpu                   = var.cpu_reservation
+  memory                = var.memory_limit
   task_role_arn         = var.task_role_arn
   tags                  = var.tags
 }
@@ -103,10 +105,6 @@ resource "aws_ecs_service" "service" {
     type  = "spread"
     field = "instanceId"
   }
-  ordered_placement_strategy {
-    type  = "binpack"
-    field = "memory"
-  }
   task_definition                   = aws_ecs_task_definition.service.arn
   lifecycle {
     ignore_changes = [
@@ -120,7 +118,7 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
   alarm_description   = format("%s HTTP 500 response code alarm", var.service_name)
   alarm_name          = format("%s-HTTP-5XX-Alarm", var.service_name)
   comparison_operator = "GreaterThanThreshold"
-  dimensions = {
+  dimensions          = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
     TargetGroup  = aws_lb_target_group.target_group.arn_suffix
   }
@@ -139,7 +137,7 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
   alarm_description   = format("%s service has no healthy instances", var.service_name)
   alarm_name          = format("%s-not-healthy", var.service_name)
   comparison_operator = "LessThanThreshold"
-  dimensions = {
+  dimensions          = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
     TargetGroup  = aws_lb_target_group.target_group.arn_suffix
   }
