@@ -161,7 +161,7 @@ variable "placement_strategy" {
       field = "instanceId"
     }
   ]
-  description = "The orded placement strategy which should be followed by the service"
+  description = "The ordered placement strategy which should be followed by the service"
   type        = list(object({
     type  = string
     field = string
