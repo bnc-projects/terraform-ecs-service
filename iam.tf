@@ -24,8 +24,7 @@ resource "aws_iam_role" "service" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_service_policy" {
-  index = 0
   count = var.launch_type == "EC2" ? 1 : 0
-  role = aws_iam_role.service[index].name
+  role = aws_iam_role.service[count.index].name
   policy_arn = var.service_role_policy_arn
 }

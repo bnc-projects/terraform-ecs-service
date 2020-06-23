@@ -1,5 +1,4 @@
 resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
-  target_group_index  = 0
   count               = var.attach_load_balancer ? 1 : 0
   alarm_actions       = var.alarm_actions
   alarm_description   = format("%s HTTP 500 response code alarm", var.service_name)
@@ -7,7 +6,7 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
   comparison_operator = "GreaterThanThreshold"
   dimensions          = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
-    TargetGroup  = aws_lb_target_group.target_group[target_group_index].arn_suffix
+    TargetGroup  = aws_lb_target_group.target_group[count.index].arn_suffix
   }
   evaluation_periods  = 1
   metric_name         = "HTTPCode_Target_5XX_Count"
@@ -20,7 +19,6 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
-  target_group_index  = 0
   count               = var.attach_load_balancer ? 1 : 0
   alarm_actions       = var.alarm_actions
   alarm_description   = format("%s service is below desired running count", var.service_name)
@@ -28,7 +26,7 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
   comparison_operator = "LessThanThreshold"
   dimensions          = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
-    TargetGroup  = aws_lb_target_group.target_group[target_group_index].arn_suffix
+    TargetGroup  = aws_lb_target_group.target_group[count.index].arn_suffix
   }
   evaluation_periods  = 1
   metric_name         = "HealthyHostCount"
