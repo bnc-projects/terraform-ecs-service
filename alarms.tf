@@ -6,7 +6,7 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
   comparison_operator = "GreaterThanThreshold"
   dimensions          = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
-    TargetGroup  = aws_lb_target_group.target_group[count.index].arn_suffix
+    TargetGroup  = aws_lb_target_group.target_group.arn_suffix
   }
   evaluation_periods  = 1
   metric_name         = "HTTPCode_Target_5XX_Count"
@@ -26,7 +26,7 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
   comparison_operator = "LessThanThreshold"
   dimensions          = {
     LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
-    TargetGroup  = aws_lb_target_group.target_group[count.index].arn_suffix
+    TargetGroup  = aws_lb_target_group.target_group.arn_suffix
   }
   evaluation_periods  = 1
   metric_name         = "HealthyHostCount"

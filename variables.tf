@@ -1,9 +1,3 @@
-variable "zero" {
-  default = 0
-  description = "Because we may have 1 or 0, zero must be an expression"
-  type = number
-}
-
 variable "alarm_actions" {
   default     = []
   description = "The list of ARNs which will be triggered when the alarms trigger"
