@@ -174,7 +174,7 @@ variable "platform_version" {
 }
 
 variable "priority" {
-  default     = 1
+  default     = null
   description = "The priority of the application path matching"
   type        = number
 }
