@@ -192,7 +192,7 @@ variable "scheduling_strategy" {
 }
 
 variable "security_groups" {
-  default     = []
+  default     = null
   description = "The security groups associated with the task or service"
   type        = list(string)
 }
