@@ -144,10 +144,10 @@ variable "memory_utilization_evaluation_periods" {
 variable "placement_constraints" {
   default     = []
   description = "The rules that are taken into consideration during task placement"
-  type        = list(map(object({
+  type        = list(object({
     type       = string
     expression = string
-  })))
+  }))
 }
 
 variable "placement_strategy" {
