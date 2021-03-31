@@ -26,7 +26,8 @@
         "splunk-format": "raw",
         "splunk-insecureskipverify": "true",
         "splunk-token": "${splunk_token}",
-        "splunk-url": "${splunk_url}"
+        "splunk-url": "${splunk_url}",
+        "splunk-verify-connection": "false"
       }
     },
     "memory": ${memory_limit},
