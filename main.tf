@@ -160,7 +160,7 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
   alarm_name          = format("%s-HTTP-5XX-Alarm", var.service_name)
   comparison_operator = "GreaterThanThreshold"
   dimensions          = {
-    LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
+    LoadBalancer = var.is_exposed_externally ? var.external_lb_listener_arn : var.internal_lb_listener_arn
     TargetGroup  = aws_lb_target_group.target_group[0].arn_suffix
   }
   evaluation_periods  = 1
@@ -180,7 +180,7 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
   alarm_name          = format("%s-not-healthy", var.service_name)
   comparison_operator = "LessThanThreshold"
   dimensions          = {
-    LoadBalancer = var.is_exposed_externally ? var.external_lb_name : var.internal_lb_name
+    LoadBalancer = var.is_exposed_externally ? var.external_lb_arn_suffix : var.internal_lb_arn_suffix
     TargetGroup  = aws_lb_target_group.target_group[0].arn_suffix
   }
   evaluation_periods  = 1

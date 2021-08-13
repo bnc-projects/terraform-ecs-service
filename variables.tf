@@ -75,9 +75,9 @@ variable "external_lb_listener_arn" {
   type        = string
 }
 
-variable "external_lb_name" {
+variable "external_lb_arn_suffix" {
   default     = null
-  description = "The external load balancer name"
+  description = "The external load balancer arn suffix"
   type        = string
 }
 
@@ -105,9 +105,9 @@ variable "internal_lb_listener_arn" {
   type        = string
 }
 
-variable "internal_lb_name" {
+variable "internal_lb_arn_suffix" {
   default     = null
-  description = "The internal load balancer name"
+  description = "The internal load balancer arn suffix"
   type        = string
 }
 
