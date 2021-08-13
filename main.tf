@@ -174,7 +174,7 @@ resource "aws_cloudwatch_metric_alarm" "http_target_5xx_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm" {
-  count               = var.attach_load_balancer ? 1 : 0
+  count               = var.attach_load_balancer && var.launch_type == "EC2" ? 1 : 0
   alarm_actions       = var.alarm_actions
   alarm_description   = format("%s service is below desired running count", var.service_name)
   alarm_name          = format("%s-not-healthy", var.service_name)
