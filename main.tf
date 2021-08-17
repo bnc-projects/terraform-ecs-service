@@ -215,6 +215,7 @@ resource "aws_cloudwatch_metric_alarm" "service_not_healthy_alarm_no_lb" {
 
 
 resource "aws_cloudwatch_metric_alarm" "service_cpu_utilization_alarm" {
+  count               = var.launch_type == "EC2" ? 1 : 0
   alarm_actions       = var.alarm_actions
   alarm_description   = format("%s service cpu utilization is greater than %s percent of reserved cpu", var.service_name, var.cpu_utilization_alarm_threshold)
   alarm_name          = format("%s-cpu-utilization-alarm", var.service_name)
@@ -234,6 +235,7 @@ resource "aws_cloudwatch_metric_alarm" "service_cpu_utilization_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_memory_utilization_alarm" {
+  count               = var.launch_type == "EC2" ? 1 : 0
   alarm_actions       = var.alarm_actions
   alarm_description   = format("%s service memory utilization is greater than %s percent of reserved cpu", var.service_name, var.memory_utilization_alarm_threshold)
   alarm_name          = format("%s-memory-utilization-alarm", var.service_name)
