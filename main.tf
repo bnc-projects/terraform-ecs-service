@@ -44,9 +44,16 @@ resource "aws_lb_listener_rule" "https_listener_rule" {
   }
   condition {
     path_pattern {
-      values = [
+      values = var.application_path != null ? [
         format("%s/*", var.application_path),
-      ]
+      ] : []
+    }
+  }
+  condition {
+    host_header {
+      values = var.host_header != null ? [
+        var.host_header
+      ] : []
     }
   }
   priority     = var.priority
