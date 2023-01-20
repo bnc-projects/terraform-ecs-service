@@ -16,6 +16,12 @@ variable "application_path" {
   type        = string
 }
 
+variable "host_header" {
+  default     = null
+  description = "The host that the servie will listen to"
+  type        = string
+}
+
 variable "attach_load_balancer" {
   default     = false
   description = "Set to true if load balancers will be attached"
